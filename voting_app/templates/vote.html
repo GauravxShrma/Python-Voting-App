@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">{{ event.title }}</h3>
+                {% if event.is_closed %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <i class="fas fa-lock mr-1"></i>Closed
+                    </span>
+                {% else %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <i class="fas fa-check-circle mr-1"></i>Active
+                    </span>
+                {% endif %}
+            </div>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ event.description }}</p>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Created</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {{ event.created_at.strftime('%Y-%m-%d %H:%M') }}
+                    </dd>
+                </div>
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Total Votes</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ event.get_total_votes() }}</dd>
+                </div>
+            </dl>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <!-- Debug Info -->
+            {% if current_user.role == 'admin' %}
+            <div class="mb-4 p-4 bg-gray-100 rounded text-sm font-mono">
+                <p>Debug Info:</p>
+                <ul class="list-disc pl-4">
+                    <li>can_vote: {{ can_vote }}</li>
+                    <li>voted: {{ voted }}</li>
+                    <li>is_closed: {{ event.is_closed }}</li>
+                </ul>
+            </div>
+            {% endif %}
+            
+            {% if can_vote and not voted %}
+                <form method="POST" action="{{ url_for('vote', event_id=event.id) }}" class="space-y-4">
+                    <div class="space-y-4">
+                        {% for option in event.options %}
+                        <div class="flex items-center">
+                            <input id="option_{{ option.id }}" name="option_id" type="radio" value="{{ option.id }}"
+                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300" required>
+                            <label for="option_{{ option.id }}" class="ml-3 block text-sm font-medium text-gray-700">
+                                {{ option.option_text }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-vote-yea mr-2"></i>Submit Vote
+                        </button>
+                    </div>
+                </form>
+            {% elif voted %}
+                <div class="rounded-md bg-green-50 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle text-green-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-green-800">You have already voted</h3>
+                            <div class="mt-2 text-sm text-green-700">
+                                <p>Thank you for participating in this voting event.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="rounded-md bg-yellow-50 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-lock text-yellow-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-yellow-800">Voting is not available</h3>
+                            <div class="mt-2 text-sm text-yellow-700">
+                                <p>This event has been closed by the administrator.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <div class="flex justify-end space-x-3">
+                <a href="{{ url_for('index') }}"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Events
+                </a>
+                {% if event.is_closed %}
+                <a href="{{ url_for('results', event_id=event.id) }}"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <i class="fas fa-chart-bar mr-2"></i>View Results
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

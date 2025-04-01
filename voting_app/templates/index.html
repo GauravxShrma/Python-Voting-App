@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Voting Events{% endblock %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8">
+    <div class="sm:flex sm:items-center">
+        <div class="sm:flex-auto">
+            <h1 class="text-2xl font-semibold text-gray-900">Voting Events</h1>
+            <p class="mt-2 text-sm text-gray-700">A list of all available voting events.</p>
+        </div>
+        {% if current_user.is_authenticated and current_user.role == 'admin' %}
+        <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+            <a href="{{ url_for('create_event') }}" class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">
+                <i class="fas fa-plus mr-2"></i>Create Event
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {% for event in events %}
+        <div class="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-medium text-gray-900">{{ event.title }}</h3>
+                    {% if event.is_closed %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            <i class="fas fa-lock mr-1"></i>Closed
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="fas fa-check-circle mr-1"></i>Active
+                        </span>
+                    {% endif %}
+                </div>
+                <p class="mt-2 text-sm text-gray-500">{{ event.description }}</p>
+                <div class="mt-4">
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-calendar-alt mr-1"></i>Created:
+                    </div>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {{ event.created_at.strftime('%Y-%m-%d %H:%M') }}
+                    </div>
+                </div>
+            </div>
+            <div class="px-4 py-4 sm:px-6">
+                <div class="flex justify-end space-x-3">
+                    <a href="{{ url_for('event_detail', event_id=event.id) }}" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <i class="fas fa-eye mr-2"></i>View Details
+                    </a>
+                    {% if event.is_closed %}
+                    <a href="{{ url_for('results', event_id=event.id) }}" class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <i class="fas fa-chart-bar mr-2"></i>Results
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-span-full">
+            <div class="bg-white shadow rounded-lg p-6">
+                <div class="text-center">
+                    <h3 class="text-lg font-medium text-gray-900">No events available</h3>
+                    <p class="mt-1 text-sm text-gray-500">
+                        {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                            Get started by creating your first event.
+                            <div class="mt-6">
+                                <a href="{{ url_for('create_event') }}"
+                                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    <i class="fas fa-plus mr-2"></i>Create New Event
+                                </a>
+                            </div>
+                        {% else %}
+                            Check back later for new voting events.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

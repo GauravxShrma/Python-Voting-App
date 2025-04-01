@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Results - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">{{ event.title }}</h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    <i class="fas fa-chart-bar mr-1"></i>Results
+                </span>
+            </div>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ event.description }}</p>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Created</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {{ event.created_at.strftime('%Y-%m-%d %H:%M') }}
+                    </dd>
+                </div>
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Total Votes</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ total_votes }}</dd>
+                </div>
+            </dl>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <div class="space-y-6">
+                {% for option in sorted_options %}
+                <div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <span class="text-sm font-medium text-gray-900">{{ option.option_text }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-sm text-gray-500">{{ option.votes }} votes</span>
+                            <span class="ml-4 text-sm text-gray-500">
+                                {% if total_votes > 0 %}
+                                    {{ "%.1f"|format(option.votes / total_votes * 100) }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <div class="relative pt-1">
+                            <div class="overflow-hidden h-2 text-xs flex rounded bg-gray-200">
+                                <div style="width: {% if total_votes > 0 %}{{ option.votes / total_votes * 100 }}{% else %}0{% endif %}%"
+                                    class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <div class="flex justify-end space-x-3">
+                <a href="{{ url_for('index') }}"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Events
+                </a>
+                {% if current_user.role == 'admin' %}
+                <a href="{{ url_for('admin_dashboard') }}"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <i class="fas fa-cog mr-2"></i>Admin Dashboard
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
